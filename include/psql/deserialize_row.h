@@ -4,6 +4,7 @@
 #include "psql/error.h"
 #include "psql/value.h"
 #include "psql/messages.h"
+#include "psql/metadata.h"
 #include <vector>
 
 constexpr std::int32_t int2_oid = 21;
@@ -18,16 +19,16 @@ inline void check_error_code(errc err)
 
 inline value deserialize_single(
 	std::string_view from,
-	const single_row_description& meta
+	const field_metadata& meta
 )
 {
-	if (meta.format == 0) // text
+	if (meta.format() == 0) // text
 	{
-		if (meta.type_oid == int2_oid || meta.type_oid == int4_oid)
+		if (meta.type_oid() == int2_oid || meta.type_oid() == int4_oid)
 		{
 			return value(std::stoi(std::string(from)));
 		}
-		else if (meta.type_oid == varchar_oid)
+		else if (meta.type_oid() == varchar_oid)
 		{
 			return value(from);
 		}
@@ -43,7 +44,7 @@ inline value deserialize_single(
 }
 
 inline std::vector<value> deserialize_row(
-	const std::vector<single_row_description>& meta,
+	const std::vector<field_metadata>& meta,
 	const bytestring& buffer
 )
 {

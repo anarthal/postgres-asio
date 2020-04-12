@@ -5,6 +5,9 @@
 #include "psql/messages.h"
 #include "psql/auth_md5.h"
 #include "psql/deserialize_row.h"
+#include "psql/row.h"
+#include "psql/metadata.h"
+#include "psql/resultset.h"
 #include <boost/asio/ip/tcp.hpp>
 
 using namespace std;
@@ -27,12 +30,6 @@ void print(const std::vector<value>& values)
 		std::cout << ", ";
 	}
 	std::cout << " }\n";
-}
-
-void print(const std::vector<std::vector<value>>& rows)
-{
-	for (const auto& r: rows)
-		print(r);
 }
 
 int main(int argc, char **argv) {
@@ -78,25 +75,15 @@ int main(int argc, char **argv) {
 	});
 
 	// Row descriptions
+	bytestring meta_buff;
 	row_description descrs;
-	chan.read(descrs);
+	chan.read(descrs, meta_buff);
+	auto meta = make_resultset_metadata(descrs, std::move(meta_buff));
 
 	// Rows
-	std::vector<bytestring> row_buffers;
-	std::vector<std::vector<value>> rows;
-	while (true)
+	resultset<tcp::socket> result (chan, std::move(meta));
+	while (const row* r = result.fetch_one())
 	{
-		bytestring row_buffer;
-		chan.read(row_buffer, msg_type);
-		if (msg_type == std::uint8_t('C'))
-		{
-			// command completion
-			break;
-		}
-		rows.push_back(deserialize_row(descrs.rows, row_buffer));
-		row_buffers.push_back(std::move(row_buffer));
-	};
-	print(rows);
-
-
+		print(r->values());
+	}
 }

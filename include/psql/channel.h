@@ -8,8 +8,6 @@
 template <typename AsyncStream>
 class channel
 {
-	// TODO: static asserts for AsyncStream concept
-	// TODO: actually we also require it to be SyncStream, name misleading
 	AsyncStream& stream_;
  	std::array<std::uint8_t, 5> header_buffer_ {}; // for async ops
 	bytestring shared_buff_; // for async ops

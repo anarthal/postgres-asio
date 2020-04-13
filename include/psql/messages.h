@@ -200,11 +200,11 @@ struct serialization_traits<bind_message<ForwardIterator>, serialization_tag::no
 				using T = decltype(v);
 				if constexpr (std::is_arithmetic_v<T>)
 				{
-					return std::size_t(std::to_string(v).size() + 5); // length and null terminator
+					return std::size_t(std::to_string(v).size() + 4); // length
 				}
 				else if constexpr (std::is_same_v<T, std::string_view>)
 				{
-					return std::size_t(v.size() + 5); // length and null terminator
+					return std::size_t(v.size() + 4); // length
 				}
 				else // NULL
 				{
@@ -228,13 +228,13 @@ struct serialization_traits<bind_message<ForwardIterator>, serialization_tag::no
 				if constexpr (std::is_arithmetic_v<T>)
 				{
 					auto s = std::to_string(v);
-					serialize(std::int32_t(s.size()), ctx);
-					serialize(string_null(s), ctx);
+					//serialize(std::int32_t(s.size()), ctx);
+					serialize(string_lenenc(s), ctx);
 				}
 				else if constexpr (std::is_same_v<T, std::string_view>)
 				{
-					serialize(std::int32_t(v.size()), ctx);
-					serialize(string_null(v), ctx);
+					//serialize(std::int32_t(v.size()), ctx);
+					serialize(string_lenenc(v), ctx);
 				}
 				else // NULL
 				{

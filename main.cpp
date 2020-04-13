@@ -47,8 +47,8 @@ int main()
 	}
 
 	// Prepared statements
-	std::array<value, 0> no_values {};
-	auto stmt = conn.prepare_statement("SELECT * FROM mytable WHERE f2 IN ('hola', 'adios')");
+	std::array<value, 2> no_values { value("hola"), value("quetal") };
+	auto stmt = conn.prepare_statement("SELECT * FROM mytable WHERE f2 IN ($1, $2)");
 	result = stmt.execute(std::begin(no_values), std::end(no_values));
 	while (const row* r = result.fetch_one())
 	{

@@ -3,6 +3,9 @@
 
 #include "psql/serialization.h"
 
+namespace psql
+{
+
 // Generic utils
 template <std::uint8_t msg_type>
 struct empty_message
@@ -322,5 +325,6 @@ using close_complete = empty_message<'3'>;
 using flush_message = empty_message<'H'>;
 using sync_message = empty_message<'S'>;
 
+}
 
 #endif /* INCLUDE_PSQL_MESSAGES_H_ */

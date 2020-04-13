@@ -7,6 +7,9 @@
 #include <boost/asio/buffer.hpp>
 #include "psql/error.h"
 
+namespace psql
+{
+
 class deserialization_context
 {
 	const std::uint8_t* first_;
@@ -50,5 +53,6 @@ public:
 	void write(std::uint8_t elm) noexcept { *first_ = elm; ++first_; }
 };
 
+}
 
 #endif /* INCLUDE_PSQL_SERIALIZATION_CTX_H_ */

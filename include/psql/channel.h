@@ -5,6 +5,9 @@
 #include <boost/asio/write.hpp>
 #include <boost/asio/read.hpp>
 
+namespace psql
+{
+
 template <typename AsyncStream>
 class channel
 {
@@ -76,6 +79,6 @@ public:
 	bytestring& shared_buffer() noexcept { return shared_buff_; }
 };
 
-
+}
 
 #endif /* INCLUDE_PSQL_CHANNEL_H_ */

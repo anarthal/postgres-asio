@@ -6,6 +6,9 @@
 #include <string>
 #include <cstdint>
 
+namespace psql
+{
+
 inline std::string
 bytes_to_hex(std::uint8_t b[16])
 {
@@ -40,6 +43,6 @@ inline std::string auth_md5(
 	return "md5" + md5_str(md5_str(password, user), salt);
 }
 
-
+}
 
 #endif /* INCLUDE_PSQL_AUTH_MD5_H_ */

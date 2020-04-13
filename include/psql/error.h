@@ -4,6 +4,9 @@
 #include <boost/system/error_code.hpp>
 #include <boost/system/system_error.hpp>
 
+namespace psql
+{
+
 using boost::system::error_code;
 
 enum class errc : int
@@ -102,5 +105,6 @@ inline void conditional_assign(error_info* to, error_info&& from)
 	}
 }
 
+}
 
 #endif /* INCLUDE_PSQL_ERROR_H_ */

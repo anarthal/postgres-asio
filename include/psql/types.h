@@ -6,6 +6,9 @@
 #include <type_traits>
 #include <string_view>
 
+namespace psql
+{
+
 template <typename T>
 struct value_holder
 {
@@ -31,5 +34,6 @@ struct string_null : value_holder<std::string_view> { using value_holder::value_
 struct string_eof : value_holder<std::string_view> { using value_holder::value_holder; };
 struct string_lenenc : value_holder<std::string_view> { using value_holder::value_holder; };
 
+}
 
 #endif /* INCLUDE_PSQL_BYTESTRING_H_ */

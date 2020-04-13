@@ -5,6 +5,9 @@
 #include "psql/row.h"
 #include "psql/deserialize_row.h"
 
+namespace psql
+{
+
 template <typename StreamType>
 class resultset
 {
@@ -54,6 +57,6 @@ public:
 	const std::vector<field_metadata>& fields() const noexcept { return meta_.fields(); }
 };
 
-
+}
 
 #endif /* INCLUDE_PSQL_RESULTSET_H_ */

@@ -1,10 +1,13 @@
 #include <iostream>
+#include <date/ios.h>
 #include "psql/connection.h"
 #include <boost/asio/ip/tcp.hpp>
 
 using namespace std;
 using boost::asio::ip::tcp;
 namespace net = boost::asio;
+using namespace psql;
+using ::date::operator<<;
 
 void print(const value& v)
 {

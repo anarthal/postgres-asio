@@ -6,6 +6,9 @@
 #include <type_traits>
 #include <boost/endian/conversion.hpp>
 
+namespace psql
+{
+
 enum class serialization_tag
 {
 	none,
@@ -359,17 +362,6 @@ error_code deserialize_message(
 	return error_code();
 }
 
-// Helpers for (de) serializing a set of fields
-/**template <typename... Types>
-errc deserialize_fields(deserialization_context& ctx, Types&... fields) noexcept;
-
-template <typename... Types>
-void serialize_fields(serialization_context& ctx, const Types&... fields) noexcept;
-
-inline std::pair<error_code, std::uint8_t> deserialize_message_type(
-	deserialization_context& ctx
-);*/
-
-
+}
 
 #endif /* INCLUDE_PSQL_SERIALIZATION_H_ */

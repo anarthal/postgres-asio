@@ -4,6 +4,9 @@
 #include "psql/messages.h"
 #include "psql/types.h"
 
+namespace psql
+{
+
 class field_metadata
 {
 	single_row_description msg_;
@@ -46,5 +49,6 @@ resultset_metadata make_resultset_metadata(
 	return resultset_metadata(std::move(buffer), std::move(m));
 }
 
+}
 
 #endif /* INCLUDE_PSQL_METADATA_H_ */

@@ -7,6 +7,9 @@
 #include "psql/metadata.h"
 #include <vector>
 
+namespace psql
+{
+
 constexpr std::int32_t int2_oid = 21;
 constexpr std::int32_t int4_oid = 23;
 constexpr std::int32_t varchar_oid = 1043;
@@ -84,5 +87,6 @@ inline std::vector<value> deserialize_row(
 	return res;
 }
 
+}
 
 #endif /* INCLUDE_PSQL_DESERIALIZE_ROW_H_ */

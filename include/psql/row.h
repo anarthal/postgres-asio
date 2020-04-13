@@ -4,6 +4,9 @@
 #include "psql/value.h"
 #include "psql/types.h"
 
+namespace psql
+{
+
 class row
 {
 	std::vector<value> values_;
@@ -29,6 +32,6 @@ public:
 	~owning_row() = default;
 };
 
-
+}
 
 #endif /* INCLUDE_PSQL_ROW_H_ */

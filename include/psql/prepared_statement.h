@@ -3,6 +3,9 @@
 
 #include "psql/channel.h"
 
+namespace psql
+{
+
 template <typename Stream>
 class prepared_statement
 {
@@ -84,6 +87,6 @@ public:
 	}
 };
 
-
+}
 
 #endif /* INCLUDE_PSQL_PREPARED_STATEMENT_H_ */

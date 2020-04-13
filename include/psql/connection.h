@@ -8,6 +8,9 @@
 #include "psql/prepared_statement.h"
 #include <stdexcept>
 
+namespace psql
+{
+
 template <typename Stream>
 class connection
 {
@@ -108,6 +111,6 @@ public:
 	}
 };
 
-
+}
 
 #endif /* INCLUDE_PSQL_CONNECTION_H_ */

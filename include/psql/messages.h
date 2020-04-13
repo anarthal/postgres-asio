@@ -3,6 +3,19 @@
 
 #include "psql/serialization.h"
 
+// Generic utils
+template <std::uint8_t msg_type>
+struct empty_message
+{
+	static constexpr std::uint8_t message_type = msg_type;
+};
+
+template <std::uint8_t msg_type>
+struct get_struct_fields<empty_message<msg_type>>
+{
+	static constexpr auto value = std::make_tuple(); // no fields
+};
+
 // Handshake
 struct startup_message
 {
@@ -133,7 +146,145 @@ struct get_struct_fields<query_message>
 	);
 };
 
+// Extended query
+struct parse_message
+{
+	string_null name;
+	string_null statement;
+	std::int16_t num_params = 0; // pre-specified parameter types, not supported yet
 
+	static constexpr std::uint8_t message_type = std::uint8_t('P');
+};
+
+template <>
+struct get_struct_fields<parse_message>
+{
+	static constexpr auto value = std::make_tuple(
+		&parse_message::name,
+		&parse_message::statement,
+		&parse_message::num_params
+	);
+};
+
+using parse_complete_message = empty_message<'1'>;
+
+template <typename ForwardIterator>
+struct bind_message
+{
+	string_null portal_name;
+	string_null statement_name;
+	ForwardIterator params_begin;
+	ForwardIterator params_end;
+	// std::int16_t num_format_codes = 0; // not supported
+	// std::int16_t num_params; && std::int32_t param length (-1 for NULL), string_null param_value
+	// std::int16_t num_output_format_codes = 0;
+	static constexpr std::uint8_t message_type = std::uint8_t('B');
+};
+
+template <typename ForwardIterator>
+struct serialization_traits<bind_message<ForwardIterator>, serialization_tag::none>
+{
+	using msg_type = bind_message<ForwardIterator>;
+
+	static std::size_t get_size_(const msg_type& input, const serialization_context& ctx)
+	{
+		std::size_t res =
+			get_size(input.portal_name, ctx) +
+			get_size(input.statement_name, ctx) +
+			2 + // num_format_codes
+			2 + // num_params
+			2;  // num_output_format_codes
+		for (auto it = input.params_begin; it != input.params_end; ++it)
+		{
+			res += std::visit([](auto v) {
+				using T = decltype(v);
+				if constexpr (std::is_arithmetic_v<T>)
+				{
+					return std::size_t(std::to_string(v).size() + 5); // length and null terminator
+				}
+				else if constexpr (std::is_same_v<T, std::string_view>)
+				{
+					return std::size_t(v.size() + 5); // length and null terminator
+				}
+				else // NULL
+				{
+					return std::size_t(4);
+				}
+			}, *it);
+		}
+		return res;
+	}
+
+	static void serialize_(const msg_type& input, serialization_context& ctx)
+	{
+		serialize(input.portal_name, ctx);
+		serialize(input.statement_name, ctx);
+		serialize(std::int16_t(0), ctx); // format codes
+		serialize(std::int16_t(std::distance(input.params_begin, input.params_end)), ctx);
+		for (auto it = input.params_begin; it != input.params_end; ++it)
+		{
+			std::visit([&ctx](auto v) {
+				using T = decltype(v);
+				if constexpr (std::is_arithmetic_v<T>)
+				{
+					auto s = std::to_string(v);
+					serialize(std::int32_t(s.size()), ctx);
+					serialize(string_null(s), ctx);
+				}
+				else if constexpr (std::is_same_v<T, std::string_view>)
+				{
+					serialize(std::int32_t(v.size()), ctx);
+					serialize(string_null(v), ctx);
+				}
+				else // NULL
+				{
+					serialize(std::int32_t(-1), ctx);
+				}
+			}, *it);
+		}
+		serialize(std::int16_t(0), ctx); // output format codes
+	}
+};
+
+using bind_complete_message = empty_message<'2'>;
+
+struct execute_message
+{
+	string_null portal_name;
+	std::int32_t max_rows = 0;
+
+	static constexpr std::uint8_t message_type = std::uint8_t('E');
+};
+
+template <>
+struct get_struct_fields<execute_message>
+{
+	static constexpr auto value = std::make_tuple(
+		&execute_message::portal_name,
+		&execute_message::max_rows
+	);
+};
+
+struct describe_message
+{
+	std::uint8_t type; // 'P' for Portal, 'S' for statement
+	string_null name;
+
+	static constexpr std::uint8_t message_type = std::uint8_t('D');
+};
+
+template <>
+struct get_struct_fields<describe_message>
+{
+	static constexpr auto value = std::make_tuple(
+		&describe_message::type,
+		&describe_message::name
+	);
+};
+
+
+using flush_message = empty_message<'H'>;
+using sync_message = empty_message<'S'>;
 
 
 #endif /* INCLUDE_PSQL_MESSAGES_H_ */

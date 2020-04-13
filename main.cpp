@@ -39,7 +39,17 @@ int main()
 		"awesome"
 	});
 
+	// Query
 	auto result = conn.query("SELECT * FROM \"mytable\";");
+	while (const row* r = result.fetch_one())
+	{
+		print(r->values());
+	}
+
+	// Prepared statements
+	std::array<value, 0> no_values {};
+	auto stmt = conn.prepare_statement("SELECT * FROM mytable WHERE f2 IN ('hola', 'adios')");
+	result = stmt.execute(std::begin(no_values), std::end(no_values));
 	while (const row* r = result.fetch_one())
 	{
 		print(r->values());

@@ -299,6 +299,25 @@ struct get_struct_fields<describe_message>
 	);
 };
 
+struct close_message
+{
+	std::uint8_t type; // 'P' for Portal, 'S' for statement
+	string_null name;
+
+	static constexpr std::uint8_t message_type = std::uint8_t('C');
+};
+
+template <>
+struct get_struct_fields<close_message>
+{
+	static constexpr auto value = std::make_tuple(
+		&close_message::type,
+		&close_message::name
+	);
+};
+
+using close_complete = empty_message<'3'>;
+
 
 using flush_message = empty_message<'H'>;
 using sync_message = empty_message<'S'>;

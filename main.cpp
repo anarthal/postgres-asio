@@ -63,6 +63,7 @@ int main()
 	{
 		print(r->values());
 	}
+	stmt.close();
 	std::cout << "Prepared UPDATE complete\n\n";
 
 
@@ -73,5 +74,6 @@ int main()
 	{
 		print(r->values());
 	}
+	stmt.close();
 	std::cout << "Prepared SELECT complete\n\n";
 }

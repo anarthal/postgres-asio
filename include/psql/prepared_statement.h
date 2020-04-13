@@ -69,7 +69,19 @@ public:
 		return resultset<Stream>(*channel_, std::move(meta));
 	}
 
-	// TODO: close
+	void close()
+	{
+		assert(channel_);
+
+		channel_->write(close_message{
+			'S',
+			string_null(name_)
+		});
+		channel_->write(flush_message{});
+
+		close_complete res;
+		channel_->read(res);
+	}
 };
 
 

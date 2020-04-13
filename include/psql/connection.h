@@ -64,11 +64,28 @@ public:
 			string_null(query_string)
 		});
 
-		// Row descriptions
+		// We may get row descriptions or command completion
 		bytestring meta_buff;
-		row_description descrs;
-		channel_.read(descrs, meta_buff);
-		return resultset<Stream>(channel_, make_resultset_metadata(descrs, std::move(meta_buff)));
+		std::uint8_t msg_type = 0;
+		channel_.read(meta_buff, msg_type);
+		deserialization_context ctx (boost::asio::buffer(meta_buff));
+
+		if (msg_type == row_description::message_type)
+		{
+			row_description descrs;
+			check_error_code(deserialize_message(descrs, ctx), error_info());
+			return resultset<Stream>(channel_, make_resultset_metadata(descrs, std::move(meta_buff)));
+		}
+		else if (msg_type == 'C') // complete
+		{
+			ready_for_query_message ready;
+			channel_.read(ready);
+			return resultset<Stream>(channel_);
+		}
+		else
+		{
+			throw std::runtime_error("Unknown message type");
+		}
 	}
 
 	prepared_statement<Stream> prepare_statement(std::string_view statement)

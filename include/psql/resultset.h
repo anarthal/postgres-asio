@@ -22,6 +22,8 @@ public:
 	// Private, do not use
 	resultset(channel_type& channel, resultset_metadata&& meta):
 		channel_(&channel), meta_(std::move(meta)) {};
+	resultset(channel_type& channel) : channel_(&channel), complete_(true) {};
+
 
 	const row* fetch_one()
 	{

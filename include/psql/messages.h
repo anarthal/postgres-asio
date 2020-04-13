@@ -129,6 +129,8 @@ struct serialization_traits<row_description, serialization_tag::none> :
 	}
 };
 
+using no_data_message = empty_message<'n'>;
+
 
 // Query
 struct query_message
@@ -143,6 +145,21 @@ struct get_struct_fields<query_message>
 {
 	static constexpr auto value = std::make_tuple(
 		&query_message::query
+	);
+};
+
+struct ready_for_query_message
+{
+	std::uint8_t status;
+
+	static constexpr std::uint8_t message_type = std::uint8_t('Z');
+};
+
+template <>
+struct get_struct_fields<ready_for_query_message>
+{
+	static constexpr auto value = std::make_tuple(
+		&ready_for_query_message::status
 	);
 };
 

@@ -42,9 +42,23 @@ public:
 			string_null("")
 		});
 		channel_->write(flush_message{});
+
+		// We may get either 'no data' or a row_description
+		std::uint8_t msg_type = 0;
 		bytestring meta_buffer;
-		row_description meta;
-		channel_->read(meta, meta_buffer);
+		channel_->read(meta_buffer, msg_type);
+		deserialization_context ctx (boost::asio::buffer(meta_buffer));
+		resultset_metadata meta;
+		if (msg_type == row_description::message_type)
+		{
+			row_description descr;
+			check_error_code(deserialize_message(descr, ctx), error_info());
+			meta = make_resultset_metadata(descr, std::move(meta_buffer));
+		}
+		else if (msg_type != no_data_message::message_type)
+		{
+			throw std::runtime_error("Unknown message type");
+		}
 
 		// Execute
 		channel_->write(execute_message{
@@ -52,7 +66,7 @@ public:
 		});
 		channel_->write(sync_message{});
 
-		return resultset<Stream>(*channel_, make_resultset_metadata(meta, std::move(meta_buffer)));
+		return resultset<Stream>(*channel_, std::move(meta));
 	}
 
 	// TODO: close
